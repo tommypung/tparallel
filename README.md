@@ -1,3 +1,30 @@
+# Description
+
+This program helps you run a lot of time consuming shell scripts in
+parallel. You select how many threads you want to spare and then
+produce a list of tasks to execute. The program will go through the
+list at the fastest pace possible with the number of selected threads.
+On error or abortion, the failed/unprocessed tasks will be stored so
+you can pick up the work.
+
+```
+ # Produce a large list of tasks to execute
+ # Maybe you have a large database of users
+ # SELECT id FROM user WHERE someCriteria=true
+ # Export as CSV
+
+ echo "" > commands.list # clear the list
+ USERS=$(cat users.csv | cut -d, -f1 | tail -n +1)
+ for user in $USERS; do
+    echo 'curl --header "Authorization: Bearer ......" --fail https://external-api.com/'"$user >  $user.json" >> commands.list
+ done
+
+ # Execute all of the commands
+ ./tparallel --thread 10 --commands ./commands.list --failures failures.list --unprocessed unprocessed.list
+ # or if you don't care about failures
+ # ./tparallel --thread 10 --commands ./commands.list
+```
+
 # Compile using
 gcc -Werror -Wall tparallel.c -lpthread -o tparallel
 
